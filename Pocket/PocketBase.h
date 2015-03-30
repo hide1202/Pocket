@@ -9,7 +9,8 @@
 #ifndef Pocket_Base_h
 #define Pocket_Base_h
 
-static const char* kPocketDbName = "";
+static const NSString* kDbFileNameKey = @"PocketDbFileName";
+static const NSString* kDefaultDbFileName = @"default.sqlite";
 
 @interface PocketBase : NSObject
 -(instancetype)init;

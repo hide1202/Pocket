@@ -31,7 +31,7 @@
 
 -(instancetype)initWithDbName:(NSString*)fileName
 {
-	return [self initWithDbName:fileName directory:NSDocumentDirectory];
+	return [self initWithDbName:fileName directory:NSCachesDirectory];
 }
 
 -(instancetype)initWithDbName:(NSString*)fileName directory:(NSSearchPathDirectory)directory
@@ -52,7 +52,7 @@
 			if (sqlite3_open([_dbPath UTF8String], &_database) == SQLITE_OK)
 				sqlite3_close(_database);
 			else
-				[NSException raise:@"PocketException" format:@"Failed to open/create database"];
+				[NSException raise:@"PocketException" format:@"%@", [NSString stringWithUTF8String:sqlite3_errmsg(_database)]];
 		}
 	}
 	
@@ -81,6 +81,7 @@
 		}
 		@finally
 		{
+			sqlite3_finalize(stmt);
 			sqlite3_close(_database);
 		}
 	}
@@ -119,6 +120,7 @@
 		}
 		@finally
 		{
+			sqlite3_finalize(stmt);
 			sqlite3_close(_database);
 		}
 	}

@@ -67,7 +67,13 @@
 	{
 		self->_isCreate = NO;
 		self.tableName = NSStringFromClass([self class]);
-		_manager = [[PocketSqlManager alloc] initWithDbName:[NSString stringWithUTF8String:kPocketDbName]];
+		NSString* dbFileName = [[[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey] copy];
+
+		if(!dbFileName)
+			dbFileName = (NSString*)kDefaultDbFileName;
+		
+		NSLog(@"Db file name : %@", dbFileName);
+		_manager = [[PocketSqlManager alloc] initWithDbName:dbFileName];
 	}
 	return self;
 }
