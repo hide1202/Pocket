@@ -19,7 +19,8 @@
 
 -(BOOL) deleteDatabase;
 -(BOOL) executeQuery:(NSString*)query;
--(BOOL) executeQuery:(NSString*)query resultHandler:(void(^)(NSArray*))handler;
+-(BOOL) executeQueryAsync:(NSString*)query resultHandler:(void(^)(NSArray*))handler;
+-(NSArray*) executeQuerySync:(NSString*)query;
 @end
 
 #endif

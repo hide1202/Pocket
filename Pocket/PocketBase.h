@@ -21,6 +21,7 @@ static const NSString* kDefaultDbFileName = @"default.sqlite";
 
 -(BOOL)insert;
 -(void)loadWithPrimaryKey:(NSDictionary*)pKeys completionHandler:(void(^)(NSError*))handler;
+-(void)load;
 
 -(BOOL)deleteDbForTest;
 

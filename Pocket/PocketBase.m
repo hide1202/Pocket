@@ -181,7 +181,7 @@
 	
 	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [columns substringFromIndex:1], self.tableName, [whereClause substringFromIndex:4]];
 	NSLog(@"Select query : %@", query);
-	[_manager executeQuery:query resultHandler:^(NSArray *result) {
+	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
 		int i = 0;
 		for (NSString* name in _props) {
 			NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
@@ -199,5 +199,40 @@
 
 		handler(nil);
 	}];
+}
+
+-(void)load
+{
+	if(_pKeys == nil || [_pKeys count] == 0)
+		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
+	
+	NSMutableString* columns = [NSMutableString new];
+	for (NSString* name in [_props allKeys]) {
+		[columns appendFormat:@",%@", name];
+	}
+	
+	NSMutableString* whereClause = [NSMutableString new];
+	for (NSString* name in [_pKeys allKeys]) {
+		[whereClause appendFormat:@"and %@ = %@", name, [_pKeys[name] invoke:self]];
+	}
+	
+	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [columns substringFromIndex:1], self.tableName, [whereClause substringFromIndex:4]];
+	NSLog(@"Select query : %@", query);
+	NSArray* result = [_manager executeQuerySync:query];
+
+	int i = 0;
+	for (NSString* name in _props) {
+		NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
+		NSLog(@"Setter name : %@", setterName);
+		SEL msg = NSSelectorFromString(setterName);
+		if([self respondsToSelector:msg])
+		{
+			id arg = result[i++];
+			NSInvocation* inv = [NSInvocation invocationWithMethodSignature: [self methodSignatureForSelector:msg]];
+			[inv setSelector:msg];
+			[inv setArgument:&arg atIndex:2];
+			[inv invokeWithTarget:self];
+		}
+	}
 }
 @end

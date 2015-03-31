@@ -88,7 +88,7 @@
 	return NO;
 }
 
--(BOOL) executeQuery:(NSString*)query resultHandler:(void(^)(NSArray*))handler
+-(BOOL) executeQueryAsync:(NSString*)query resultHandler:(void(^)(NSArray*))handler
 {
 	sqlite3_stmt* stmt;
 	if(sqlite3_open([_dbPath UTF8String], &_database) == SQLITE_OK)
@@ -126,4 +126,43 @@
 	}
 	return NO;
 }
+
+-(NSArray*) executeQuerySync:(NSString*)query
+{
+	sqlite3_stmt* stmt;
+	if(sqlite3_open([_dbPath UTF8String], &_database) == SQLITE_OK)
+	{
+		@try
+		{
+			sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
+			NSMutableArray* result = [NSMutableArray new];
+			
+			int count = sqlite3_column_count(stmt);
+			NSMutableArray* types = [NSMutableArray new];
+			for (int i = 0; i < count; i++)
+				[types addObject:[NSString stringWithUTF8String:sqlite3_column_decltype(stmt, i)]];
+			while(sqlite3_step(stmt) == SQLITE_ROW)
+			{
+				for (int i = 0; i < count; i++)
+				{
+					NSString* type = [types objectAtIndex:i];
+					if([type isSame:kInteger])
+						[result addObject:[NSNumber numberWithInt:sqlite3_column_int(stmt, i)]];
+					else if([type isSame:kReal])
+						[result addObject:[NSNumber numberWithDouble:sqlite3_column_double(stmt, i)]];
+					else if([type isSame:kText])
+						[result addObject:[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, i)]];
+				}
+			}
+			return result;
+		}
+		@finally
+		{
+			sqlite3_finalize(stmt);
+			sqlite3_close(_database);
+		}
+	}
+	return nil;
+}
+
 @end
