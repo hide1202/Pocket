@@ -15,6 +15,7 @@ static const NSString* kDefaultDbFileName = @"default.sqlite";
 @interface PocketBase : NSObject
 -(instancetype)init;
 -(instancetype)initWithProperties:(NSArray*)props;
+-(instancetype)initWithProperties:(NSArray*)props primaryKeys:(NSArray*)pKeys;
 
 -(void)setProperties:(NSArray*)properties;
 -(void)setPrimaryKey:(NSArray*)pKeys;

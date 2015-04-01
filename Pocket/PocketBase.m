@@ -36,7 +36,7 @@
 	{
 		self->_isCreate = NO;
 		self.tableName = NSStringFromClass([self class]);
-		NSString* dbFileName = [[[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey] copy];
+		NSString* dbFileName = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey];
 
 		if(!dbFileName)
 			dbFileName = (NSString*)kDefaultDbFileName;
@@ -52,7 +52,14 @@
 	self = [self init];
 	if(self)
 		[self setProperties:props];
-	
+	return self;
+}
+
+-(instancetype)initWithProperties:(NSArray*)props primaryKeys:(NSArray*)pKeys
+{
+	self = [self initWithProperties:props];
+	if(self)
+		[self setPrimaryKey:pKeys];
 	return self;
 }
 
@@ -62,26 +69,16 @@
 	else		[_props removeAllObjects];
 	
 	for (NSString* name in properties)
-	{
-		Property* prop = [Property new];
-		prop.property = class_getProperty([self class], [name UTF8String]);
-		if(!prop.property)
-			[NSException raise:@"PocketBaseException" format:@"This class doesn't contaion %@ property", name];
-		[_props setValue:prop forKey:name];
-	}
+		[_props setValue:[Property propertyWithName:name target:self] forKey:name];
 }
 
 -(void)setPrimaryKey:(NSArray*)pKeys
 {
-	_pKeys = [NSMutableDictionary new];
+	if(!_pKeys)	_pKeys = [NSMutableDictionary new];
+	else		[_pKeys removeAllObjects];
+	
 	for (NSString* name in pKeys)
-	{
-		Property* prop = [Property new];
-		prop.property = class_getProperty([self class], [name UTF8String]);
-		if(!prop.property)
-			[NSException raise:@"PocketBaseException" format:@"This class doesn't contaion %@ property", name];
-		[_pKeys setValue:prop forKey:name];
-	}
+		[_pKeys setValue:[Property propertyWithName:name target:self] forKey:name];
 }
 
 -(BOOL)insert

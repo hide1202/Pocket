@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A686B171ACBD98500F10ACE /* PocketConst.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A2189FB1ACB8F2A001B0028 /* PocketConst.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9A686B181ACBD98D00F10ACE /* PocketBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A6FD38B1AC859F30099F6DB /* PocketBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9A6FD3891AC84C520099F6DB /* PocketSqlManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9AB82B6A1AC82D04007DB6B0 /* PocketSqlManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9A6FD38D1AC859FE0099F6DB /* PocketBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A6FD38C1AC859FE0099F6DB /* PocketBase.m */; };
 		9AB82B501AC82C2C007DB6B0 /* Pocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 9AB82B4F1AC82C2C007DB6B0 /* Pocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -178,6 +180,8 @@
 			files = (
 				9AB82B501AC82C2C007DB6B0 /* Pocket.h in Headers */,
 				9A6FD3891AC84C520099F6DB /* PocketSqlManager.h in Headers */,
+				9A686B171ACBD98500F10ACE /* PocketConst.h in Headers */,
+				9A686B181ACBD98D00F10ACE /* PocketBase.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

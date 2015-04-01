@@ -12,12 +12,25 @@
 #import "PocketConst.h"
 
 @interface Property : NSObject
++(instancetype)propertyWithName:(NSString*)name target:(id)target;
 -(id)invoke:(id)target;
 -(NSString*)type:(id)target;
 @property objc_property_t property;
 @end
 
 @implementation Property
++(instancetype)propertyWithName:(NSString*)name target:(id)target
+{
+	Property* p = [Property new];
+	if(p)
+	{
+		p.property = class_getProperty([target class], [name UTF8String]);
+		if(!p.property)
+			[NSException raise:@"PocketBaseException" format:@"This class doesn't contain %@ property", name];
+	}
+	return p;
+}
+
 -(NSString*)type:(id)target
 {
 	id result = [self invoke:target];
