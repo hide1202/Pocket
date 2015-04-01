@@ -33,7 +33,7 @@
 	XCTestExpectation * expection = [self expectationWithDescription:@"select test"];
 	BOOL result1 = [_sqlManager executeQuery:@"insert into test(num) values(1)"];
 	
-	[_sqlManager executeQuery:@"select * from test" resultHandler:^(NSArray *result) {
+	[_sqlManager executeQueryAsync:@"select * from test" resultHandler:^(NSArray *result) {
 		XCTAssert([[result objectAtIndex:0] isEqual:@1], @"Pass");
 		[expection fulfill];
 	}];

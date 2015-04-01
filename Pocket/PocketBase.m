@@ -9,43 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import "PocketBase.h"
+#import "PocketBase+Property.h"
+#import "PocketBase+Load.h"
 #import "PocketSqlManager.h"
-
-@interface Property : NSObject
--(id)invoke:(id)target;
--(NSString*)type:(id)target;
-@property objc_property_t property;
-@end
-
-@implementation Property
--(NSString*)type:(id)target
-{
-	id result = [self invoke:target];
-	
-	if([[result class] isSubclassOfClass:[NSNumber class]])
-	{
-		if(CFNumberIsFloatType((CFNumberRef)result))
-			return kReal;
-		else
-			return kInteger;
-	}
-	else if([[result class] isSubclassOfClass:[NSString class]])
-		return kText;
-	
-	return nil;
-}
--(id)invoke:(id)target
-{
-	SEL msg = NSSelectorFromString([NSString stringWithUTF8String: property_getName(_property)]);
-	NSInvocation* inv = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:msg]];
-	[inv setSelector:msg];
-	[inv invokeWithTarget:target];
-	id result = nil;
-	[inv getReturnValue:&result];
-	
-	return result;
-}
-@end
 
 @interface PocketBase ()
 -(BOOL)createDatabase;
@@ -60,6 +26,9 @@
 	PocketSqlManager* _manager;
 }
 
+@synthesize properties = _props;
+@synthesize primaryKeys = _pKeys;
+
 -(instancetype)init
 {
 	self = [super init];
@@ -67,7 +36,7 @@
 	{
 		self->_isCreate = NO;
 		self.tableName = NSStringFromClass([self class]);
-		NSString* dbFileName = [[[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey] copy];
+		NSString* dbFileName = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey];
 
 		if(!dbFileName)
 			dbFileName = (NSString*)kDefaultDbFileName;
@@ -83,7 +52,14 @@
 	self = [self init];
 	if(self)
 		[self setProperties:props];
-	
+	return self;
+}
+
+-(instancetype)initWithProperties:(NSArray*)props primaryKeys:(NSArray*)pKeys
+{
+	self = [self initWithProperties:props];
+	if(self)
+		[self setPrimaryKey:pKeys];
 	return self;
 }
 
@@ -93,26 +69,16 @@
 	else		[_props removeAllObjects];
 	
 	for (NSString* name in properties)
-	{
-		Property* prop = [Property new];
-		prop.property = class_getProperty([self class], [name UTF8String]);
-		if(!prop.property)
-			[NSException raise:@"PocketBaseException" format:@"This class doesn't contaion %@ property", name];
-		[_props setValue:prop forKey:name];
-	}
+		[_props setValue:[Property propertyWithName:name target:self] forKey:name];
 }
 
 -(void)setPrimaryKey:(NSArray*)pKeys
 {
-	_pKeys = [NSMutableDictionary new];
+	if(!_pKeys)	_pKeys = [NSMutableDictionary new];
+	else		[_pKeys removeAllObjects];
+	
 	for (NSString* name in pKeys)
-	{
-		Property* prop = [Property new];
-		prop.property = class_getProperty([self class], [name UTF8String]);
-		if(!prop.property)
-			[NSException raise:@"PocketBaseException" format:@"This class doesn't contaion %@ property", name];
-		[_pKeys setValue:prop forKey:name];
-	}
+		[_pKeys setValue:[Property propertyWithName:name target:self] forKey:name];
 }
 
 -(BOOL)insert
@@ -169,35 +135,21 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
 	
-	NSMutableString* columns = [NSMutableString new];
-	for (NSString* name in [_props allKeys]) {
-		[columns appendFormat:@",%@", name];
-	}
-	
-	NSMutableString* whereClause = [NSMutableString new];
-	for (NSString* name in [pKeys allKeys]) {
-		[whereClause appendFormat:@"and %@ = %@", name, pKeys[name]];
-	}
-	
-	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [columns substringFromIndex:1], self.tableName, [whereClause substringFromIndex:4]];
+	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
 	NSLog(@"Select query : %@", query);
-	[_manager executeQuery:query resultHandler:^(NSArray *result) {
-		int i = 0;
-		for (NSString* name in _props) {
-			NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
-			NSLog(@"Setter name : %@", setterName);
-			SEL msg = NSSelectorFromString(setterName);
-			if([self respondsToSelector:msg])
-			{
-				id arg = result[i++];
-				NSInvocation* inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:msg]];
-				[inv setSelector:msg];
-				[inv setArgument:&arg atIndex:2];
-				[inv invokeWithTarget:self];
-			}
-		}
-
+	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
+		[self insection:result];
 		handler(nil);
 	}];
+}
+
+-(void)load
+{
+	if(_pKeys == nil || [_pKeys count] == 0)
+		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
+	
+	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self where]];
+	NSLog(@"Select query : %@", query);
+	[self insection:[_manager executeQuerySync:query]];
 }
 @end

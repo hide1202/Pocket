@@ -9,17 +9,14 @@
 #ifndef Pocket_SqlManager_h
 #define Pocket_SqlManager_h
 
-#define kInteger (@"integer")
-#define kText (@"text")
-#define kReal (@"real")
-
 @interface PocketSqlManager : NSObject
 -(instancetype)initWithDbName:(NSString*)fileName;
 -(instancetype)initWithDbName:(NSString*)fileName directory:(NSSearchPathDirectory)directory;
 
 -(BOOL) deleteDatabase;
 -(BOOL) executeQuery:(NSString*)query;
--(BOOL) executeQuery:(NSString*)query resultHandler:(void(^)(NSArray*))handler;
+-(BOOL) executeQueryAsync:(NSString*)query resultHandler:(void(^)(NSArray*))handler;
+-(NSArray*) executeQuerySync:(NSString*)query;
 @end
 
 #endif

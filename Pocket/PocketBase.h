@@ -15,16 +15,20 @@ static const NSString* kDefaultDbFileName = @"default.sqlite";
 @interface PocketBase : NSObject
 -(instancetype)init;
 -(instancetype)initWithProperties:(NSArray*)props;
+-(instancetype)initWithProperties:(NSArray*)props primaryKeys:(NSArray*)pKeys;
 
 -(void)setProperties:(NSArray*)properties;
 -(void)setPrimaryKey:(NSArray*)pKeys;
 
 -(BOOL)insert;
 -(void)loadWithPrimaryKey:(NSDictionary*)pKeys completionHandler:(void(^)(NSError*))handler;
+-(void)load;
 
 -(BOOL)deleteDbForTest;
 
 @property (nonatomic, retain) NSString* tableName;
+@property (nonatomic, retain, readonly) NSDictionary* primaryKeys;
+@property (nonatomic, retain, readonly) NSDictionary* properties;
 @end
 
 #endif

@@ -52,6 +52,13 @@
 		XCTAssert(e==nil, @"Pass");
 		XCTAssert([_model.id isEqualToNumber:@1], @"Pass");
 		XCTAssert([_model.num isEqualToNumber:@999], @"Pass");
+		
+		_model.id = @1;
+		_model.num = @20;
+		[_model load];
+		XCTAssert([_model.id isEqualToNumber:@1], @"Pass");
+		XCTAssert([_model.num isEqualToNumber:@999], @"Pass");
+		
 		[expection fulfill];
 	}];
 	
