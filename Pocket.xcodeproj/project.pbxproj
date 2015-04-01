@@ -29,6 +29,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9A2189F91ACB8BA9001B0028 /* PocketBase+Load.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PocketBase+Load.h"; sourceTree = "<group>"; };
+		9A2189FA1ACB8E4C001B0028 /* PocketBase+Property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PocketBase+Property.h"; sourceTree = "<group>"; };
+		9A2189FB1ACB8F2A001B0028 /* PocketConst.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PocketConst.h; sourceTree = "<group>"; };
 		9A6FD38B1AC859F30099F6DB /* PocketBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PocketBase.h; sourceTree = "<group>"; };
 		9A6FD38C1AC859FE0099F6DB /* PocketBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketBase.m; sourceTree = "<group>"; };
 		9AB82B4A1AC82C2C007DB6B0 /* Pocket.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pocket.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +71,8 @@
 			isa = PBXGroup;
 			children = (
 				9A6FD38C1AC859FE0099F6DB /* PocketBase.m */,
+				9A2189F91ACB8BA9001B0028 /* PocketBase+Load.h */,
+				9A2189FA1ACB8E4C001B0028 /* PocketBase+Property.h */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -97,6 +102,7 @@
 				9AB82B691AC82CE1007DB6B0 /* Framework */,
 				9AB82B661AC82CB8007DB6B0 /* Manager */,
 				9AB82B4F1AC82C2C007DB6B0 /* Pocket.h */,
+				9A2189FB1ACB8F2A001B0028 /* PocketConst.h */,
 				9A6FD38B1AC859F30099F6DB /* PocketBase.h */,
 				9AB82B6A1AC82D04007DB6B0 /* PocketSqlManager.h */,
 				9AB82B4D1AC82C2C007DB6B0 /* Supporting Files */,

@@ -9,10 +9,6 @@
 #ifndef Pocket_SqlManager_h
 #define Pocket_SqlManager_h
 
-#define kInteger (@"integer")
-#define kText (@"text")
-#define kReal (@"real")
-
 @interface PocketSqlManager : NSObject
 -(instancetype)initWithDbName:(NSString*)fileName;
 -(instancetype)initWithDbName:(NSString*)fileName directory:(NSSearchPathDirectory)directory;

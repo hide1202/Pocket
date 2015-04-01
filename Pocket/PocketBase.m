@@ -9,43 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import "PocketBase.h"
+#import "PocketBase+Property.h"
+#import "PocketBase+Load.h"
 #import "PocketSqlManager.h"
-
-@interface Property : NSObject
--(id)invoke:(id)target;
--(NSString*)type:(id)target;
-@property objc_property_t property;
-@end
-
-@implementation Property
--(NSString*)type:(id)target
-{
-	id result = [self invoke:target];
-	
-	if([[result class] isSubclassOfClass:[NSNumber class]])
-	{
-		if(CFNumberIsFloatType((CFNumberRef)result))
-			return kReal;
-		else
-			return kInteger;
-	}
-	else if([[result class] isSubclassOfClass:[NSString class]])
-		return kText;
-	
-	return nil;
-}
--(id)invoke:(id)target
-{
-	SEL msg = NSSelectorFromString([NSString stringWithUTF8String: property_getName(_property)]);
-	NSInvocation* inv = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:msg]];
-	[inv setSelector:msg];
-	[inv invokeWithTarget:target];
-	id result = nil;
-	[inv getReturnValue:&result];
-	
-	return result;
-}
-@end
 
 @interface PocketBase ()
 -(BOOL)createDatabase;
@@ -59,6 +25,9 @@
 	NSMutableDictionary* _pKeys;
 	PocketSqlManager* _manager;
 }
+
+@synthesize properties = _props;
+@synthesize primaryKeys = _pKeys;
 
 -(instancetype)init
 {
@@ -169,34 +138,10 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
 	
-	NSMutableString* columns = [NSMutableString new];
-	for (NSString* name in [_props allKeys]) {
-		[columns appendFormat:@",%@", name];
-	}
-	
-	NSMutableString* whereClause = [NSMutableString new];
-	for (NSString* name in [pKeys allKeys]) {
-		[whereClause appendFormat:@"and %@ = %@", name, pKeys[name]];
-	}
-	
-	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [columns substringFromIndex:1], self.tableName, [whereClause substringFromIndex:4]];
+	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
 	NSLog(@"Select query : %@", query);
 	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
-		int i = 0;
-		for (NSString* name in _props) {
-			NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
-			NSLog(@"Setter name : %@", setterName);
-			SEL msg = NSSelectorFromString(setterName);
-			if([self respondsToSelector:msg])
-			{
-				id arg = result[i++];
-				NSInvocation* inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:msg]];
-				[inv setSelector:msg];
-				[inv setArgument:&arg atIndex:2];
-				[inv invokeWithTarget:self];
-			}
-		}
-
+		[self insection:result];
 		handler(nil);
 	}];
 }
@@ -206,33 +151,8 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
 	
-	NSMutableString* columns = [NSMutableString new];
-	for (NSString* name in [_props allKeys]) {
-		[columns appendFormat:@",%@", name];
-	}
-	
-	NSMutableString* whereClause = [NSMutableString new];
-	for (NSString* name in [_pKeys allKeys]) {
-		[whereClause appendFormat:@"and %@ = %@", name, [_pKeys[name] invoke:self]];
-	}
-	
-	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [columns substringFromIndex:1], self.tableName, [whereClause substringFromIndex:4]];
+	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self where]];
 	NSLog(@"Select query : %@", query);
-	NSArray* result = [_manager executeQuerySync:query];
-
-	int i = 0;
-	for (NSString* name in _props) {
-		NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
-		NSLog(@"Setter name : %@", setterName);
-		SEL msg = NSSelectorFromString(setterName);
-		if([self respondsToSelector:msg])
-		{
-			id arg = result[i++];
-			NSInvocation* inv = [NSInvocation invocationWithMethodSignature: [self methodSignatureForSelector:msg]];
-			[inv setSelector:msg];
-			[inv setArgument:&arg atIndex:2];
-			[inv invokeWithTarget:self];
-		}
-	}
+	[self insection:[_manager executeQuerySync:query]];
 }
 @end

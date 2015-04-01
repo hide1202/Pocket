@@ -26,6 +26,8 @@ static const NSString* kDefaultDbFileName = @"default.sqlite";
 -(BOOL)deleteDbForTest;
 
 @property (nonatomic, retain) NSString* tableName;
+@property (nonatomic, retain, readonly) NSDictionary* primaryKeys;
+@property (nonatomic, retain, readonly) NSDictionary* properties;
 @end
 
 #endif
