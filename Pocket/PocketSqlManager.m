@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "PocketSqlManager.h"
+#import "PocketConst.h"
 #import <sqlite3.h>
 
 #pragma mark - NSString extensions
@@ -90,6 +91,7 @@
 
 -(BOOL) executeQueryAsync:(NSString*)query resultHandler:(void(^)(NSArray*))handler
 {
+	NSLog(@"Async query : %@", query);
 	sqlite3_stmt* stmt;
 	if(sqlite3_open([_dbPath UTF8String], &_database) == SQLITE_OK)
 	{
@@ -129,6 +131,7 @@
 
 -(NSArray*) executeQuerySync:(NSString*)query
 {
+	NSLog(@"Sync query : %@", query);
 	sqlite3_stmt* stmt;
 	if(sqlite3_open([_dbPath UTF8String], &_database) == SQLITE_OK)
 	{

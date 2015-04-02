@@ -134,10 +134,8 @@
 {
 	if(_pKeys == nil || [_pKeys count] == 0)
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
-	
-	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
-	NSLog(@"Select query : %@", query);
-	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
+
+	[_manager executeQueryAsync:[NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]] resultHandler:^(NSArray *result) {
 		[self insection:result];
 		handler(nil);
 	}];
@@ -148,8 +146,6 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
 	
-	NSString* query = [NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self where]];
-	NSLog(@"Select query : %@", query);
-	[self insection:[_manager executeQuerySync:query]];
+	[self insection:[_manager executeQuerySync:[NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self where]]]];
 }
 @end
