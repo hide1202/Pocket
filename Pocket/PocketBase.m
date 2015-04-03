@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <objc/runtime.h>
 #import "PocketBase.h"
 #import "PocketBase+Property.h"
 #import "PocketBase+Load.h"
@@ -135,7 +134,8 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
 
-	[_manager executeQueryAsync:[NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]] resultHandler:^(NSArray *result) {
+	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
+	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
 		[self insection:result];
 		handler(nil);
 	}];
@@ -146,6 +146,7 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
 	
-	[self insection:[_manager executeQuerySync:[NSString stringWithFormat:@"select %@ from %@ where (%@)", [self selectColumns:_props], self.tableName, [self where]]]];
+	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self where]];
+	[self insection:[_manager executeQuerySync:query]];
 }
 @end

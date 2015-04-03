@@ -9,6 +9,7 @@
 #ifndef Pocket_PocketBase_Property_h
 #define Pocket_PocketBase_Property_h
 
+#import <objc/runtime.h>
 #import "PocketConst.h"
 
 @interface Property : NSObject

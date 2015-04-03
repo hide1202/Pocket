@@ -12,5 +12,6 @@
 #define kInteger (@"integer")
 #define kText (@"text")
 #define kReal (@"real")
+#define kSFWQuery (@"select %@ from %@ where %@")
 
 #endif
