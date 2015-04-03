@@ -63,7 +63,44 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:1 handler:^(NSError *error) {
+		NSLog(@"Error : %@", error);
 	}];
+}
+
+-(void)testUpdate
+{
+	TestModel* model = [[TestModel alloc] initWithProperties:@[@"id",@"num"] primaryKeys:@[@"id"]];
+	
+	/*
+	 [Memory]
+	 id = 1, num = 10
+	 [DB]
+	 id = 1, num = 10
+	 */
+	model.id = @1;
+	model.num = @10;
+	[model insert];
+	
+	/*
+	 [Memory]
+	 id = 1, num = 100
+	 [DB]
+	 id = 1, num = 100
+	 */
+	model.num = @100;
+	[model update];
+	
+	/*
+	 [Memory]
+	 id = 1, num = 900
+	 [DB]
+	 id = 1, num = 100
+	 [After load]
+	 id = 1, num = 100
+	 */
+	model.num = @900;
+	[model load];
+	XCTAssert([model.num isEqualToNumber:@100], @"Pass");
 }
 
 - (void)testPerformanceExample {

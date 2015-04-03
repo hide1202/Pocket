@@ -111,6 +111,23 @@
 	return [_manager executeQuery:query];
 }
 
+-(BOOL)update
+{	
+	NSMutableString* setClause = [[NSMutableString alloc] init];
+	for (NSString* name in [_props allKeys])
+	{
+		id value = [_props[name] invoke:self];
+		if([[value class] isSubclassOfClass:[NSString class]])
+			[setClause appendFormat:@",%@='%@'", name, value];
+		else
+			[setClause appendFormat:@",%@=%@", name, value];
+	}
+	
+	NSString* query = [[NSString alloc] initWithFormat:@"update %@ set %@ where %@", self.tableName, [setClause substringFromIndex:1] , [self where]];
+	NSLog(@"Update query : %@", query);
+	return [_manager executeQuery:query];
+}
+
 -(BOOL)createDatabase
 {
 	NSMutableString* columns = [NSMutableString new];
@@ -118,7 +135,7 @@
 		[columns appendFormat:@",%@ %@", name, [_props[name] type:self]];
 	}
 	
-	NSString* query = [NSString stringWithFormat:@"create table %@(%@)", _tableName, [columns substringFromIndex:1]];
+	NSString* query = [[NSString alloc] initWithFormat:@"create table %@(%@)", _tableName, [columns substringFromIndex:1]];
 	NSLog(@"Create query : %@", query);
 	_isCreate = [_manager executeQuery:query];
 	return _isCreate;
@@ -134,7 +151,7 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
 
-	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
+	NSString* query = [[NSString alloc] initWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
 	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
 		[self insection:result];
 		handler(nil);
@@ -146,7 +163,7 @@
 	if(_pKeys == nil || [_pKeys count] == 0)
 		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
 	
-	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self where]];
+	NSString* query = [[NSString alloc] initWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self where]];
 	[self insection:[_manager executeQuerySync:query]];
 }
 @end
