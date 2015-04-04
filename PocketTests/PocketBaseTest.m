@@ -63,23 +63,22 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:1 handler:^(NSError *error) {
-		NSLog(@"Error : %@", error);
+		//NSLog(@"Error : %@", error);
 	}];
 }
 
 -(void)testUpdate
 {
-	TestModel* model = [[TestModel alloc] initWithProperties:@[@"id",@"num"] primaryKeys:@[@"id"]];
-	
 	/*
 	 [Memory]
 	 id = 1, num = 10
 	 [DB]
 	 id = 1, num = 10
 	 */
-	model.id = @1;
-	model.num = @10;
-	[model insert];
+	_model.id = @1;
+	_model.num = @10;
+	[_model insert];
+	[_model viewDbForTest];
 	
 	/*
 	 [Memory]
@@ -87,8 +86,9 @@
 	 [DB]
 	 id = 1, num = 100
 	 */
-	model.num = @100;
-	[model update];
+	_model.num = @100;
+	[_model update];
+	[_model viewDbForTest];
 	
 	/*
 	 [Memory]
@@ -98,9 +98,9 @@
 	 [After load]
 	 id = 1, num = 100
 	 */
-	model.num = @900;
-	[model load];
-	XCTAssert([model.num isEqualToNumber:@100], @"Pass");
+	_model.num = @900;
+	[_model load];
+	XCTAssert([_model.num isEqualToNumber:@100], @"Pass");
 }
 
 - (void)testPerformanceExample {

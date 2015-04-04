@@ -49,7 +49,7 @@
 	for (NSString* name in [self properties])
 	{
 		NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
-		NSLog(@"Setter name : %@", setterName);
+		//NSLog(@"Setter name : %@", setterName);
 		SEL msg = NSSelectorFromString(setterName);
 		if([self respondsToSelector:msg])
 		{

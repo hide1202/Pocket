@@ -10,7 +10,7 @@
 #define Pocket_Base_h
 
 static const NSString* kDbFileNameKey = @"PocketDbFileName";
-static const NSString* kDefaultDbFileName = @"default.sqlite";
+static const NSString* kDefaultDbFileName = @"PocketDb.sqlite";
 
 @interface PocketBase : NSObject
 -(instancetype)init;
@@ -26,6 +26,7 @@ static const NSString* kDefaultDbFileName = @"default.sqlite";
 -(void)load;
 
 -(BOOL)deleteDbForTest;
+-(void)viewDbForTest;
 
 @property (nonatomic, retain) NSString* tableName;
 @property (nonatomic, retain, readonly) NSDictionary* primaryKeys;

@@ -13,5 +13,8 @@
 #define kText (@"text")
 #define kReal (@"real")
 #define kSFWQuery (@"select %@ from %@ where %@")
+#define kCreateQuery (@"create table %@(%@)")
+#define kInsertQuery (@"insert into %@(%@) values(%@)")
+#define kUpdateQuery (@"update %@ set %@ where %@")
 
 #endif
