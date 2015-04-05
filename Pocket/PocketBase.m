@@ -26,9 +26,6 @@
 	PocketSqlManager* _manager;
 }
 
-@synthesize properties = _props;
-@synthesize primaryKeys = _pKeys;
-
 -(instancetype)init
 {
 	self = [super init];
@@ -61,6 +58,16 @@
 	if(self)
 		[self setPrimaryKey:pKeys];
 	return self;
+}
+
+-(NSDictionary*) primaryKeys
+{
+	return self->_pKeys;
+}
+
+-(NSDictionary*) properties
+{
+	return self->_props;
 }
 
 -(void)setProperties:(NSArray*)properties
@@ -155,8 +162,11 @@
 -(void)loadWithPrimaryKey:(NSDictionary*)pKeys completionHandler:(void(^)(NSError*))handler;
 {
 	if(_pKeys == nil || [_pKeys count] == 0)
+	{
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
-
+		return;
+	}
+	
 	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
 	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
 		[self insection:result];

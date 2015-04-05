@@ -19,6 +19,8 @@ static const NSString* kDefaultDbFileName = @"PocketDb.sqlite";
 
 -(void)setProperties:(NSArray*)properties;
 -(void)setPrimaryKey:(NSArray*)pKeys;
+-(NSDictionary*) primaryKeys;
+-(NSDictionary*) properties;
 
 -(BOOL)insert;
 -(BOOL)update;
@@ -29,8 +31,6 @@ static const NSString* kDefaultDbFileName = @"PocketDb.sqlite";
 -(void)viewDbForTest;
 
 @property (nonatomic, retain) NSString* tableName;
-@property (nonatomic, retain, readonly) NSDictionary* primaryKeys;
-@property (nonatomic, retain, readonly) NSDictionary* properties;
 @end
 
 #endif
