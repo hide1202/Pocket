@@ -17,6 +17,8 @@
 -(BOOL) executeQuery:(NSString*)query;
 -(BOOL) executeQueryAsync:(NSString*)query resultHandler:(void(^)(NSArray*))handler;
 -(NSArray*) executeQuerySync:(NSString*)query;
+
+-(void) selectAllForTest:(NSString*)tableName;
 @end
 
 #endif

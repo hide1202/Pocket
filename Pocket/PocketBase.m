@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "PocketConst.h"
 #import "PocketBase.h"
 #import "PocketBase+Property.h"
 #import "PocketBase+Load.h"
@@ -24,9 +25,6 @@
 	NSMutableDictionary* _pKeys;
 	PocketSqlManager* _manager;
 }
-
-@synthesize properties = _props;
-@synthesize primaryKeys = _pKeys;
 
 -(instancetype)init
 {
@@ -60,6 +58,16 @@
 	if(self)
 		[self setPrimaryKey:pKeys];
 	return self;
+}
+
+-(NSDictionary*) primaryKeys
+{
+	return self->_pKeys;
+}
+
+-(NSDictionary*) properties
+{
+	return self->_props;
 }
 
 -(void)setProperties:(NSArray*)properties
@@ -106,8 +114,25 @@
 		else
 			[values appendFormat:@",%@", result];
 	}
-	NSString* query = [NSString stringWithFormat:@"insert into %@(%@) values(%@)", _tableName, [columns substringFromIndex:1], [values substringFromIndex:1]];
+	NSString* query = [NSString stringWithFormat:kInsertQuery, _tableName, [columns substringFromIndex:1], [values substringFromIndex:1]];
 	NSLog(@"Insert query : %@", query);
+	return [_manager executeQuery:query];
+}
+
+-(BOOL)update
+{	
+	NSMutableString* setClause = [[NSMutableString alloc] init];
+	for (NSString* name in [_props allKeys])
+	{
+		id value = [_props[name] invoke:self];
+		if([[value class] isSubclassOfClass:[NSString class]])
+			[setClause appendFormat:@",%@='%@'", name, value];
+		else
+			[setClause appendFormat:@",%@=%@", name, value];
+	}
+	
+	NSString* query = [NSString stringWithFormat:kUpdateQuery, self.tableName, [setClause substringFromIndex:1] , [self where]];
+	NSLog(@"Update query : %@", query);
 	return [_manager executeQuery:query];
 }
 
@@ -118,7 +143,7 @@
 		[columns appendFormat:@",%@ %@", name, [_props[name] type:self]];
 	}
 	
-	NSString* query = [NSString stringWithFormat:@"create table %@(%@)", _tableName, [columns substringFromIndex:1]];
+	NSString* query = [NSString stringWithFormat:kCreateQuery, _tableName, [columns substringFromIndex:1]];
 	NSLog(@"Create query : %@", query);
 	_isCreate = [_manager executeQuery:query];
 	return _isCreate;
@@ -129,11 +154,19 @@
 	return [_manager deleteDatabase];
 }
 
+-(void)viewDbForTest
+{
+	[_manager selectAllForTest:self.tableName];
+}
+
 -(void)loadWithPrimaryKey:(NSDictionary*)pKeys completionHandler:(void(^)(NSError*))handler;
 {
 	if(_pKeys == nil || [_pKeys count] == 0)
+	{
 		handler([NSError errorWithDomain:@"PocketBase" code:-1 userInfo:nil]);
-
+		return;
+	}
+	
 	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
 	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
 		[self insection:result];

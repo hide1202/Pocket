@@ -63,7 +63,44 @@
 	}];
 	
 	[self waitForExpectationsWithTimeout:1 handler:^(NSError *error) {
+		//NSLog(@"Error : %@", error);
 	}];
+}
+
+-(void)testUpdate
+{
+	/*
+	 [Memory]
+	 id = 1, num = 10
+	 [DB]
+	 id = 1, num = 10
+	 */
+	_model.id = @1;
+	_model.num = @10;
+	[_model insert];
+	[_model viewDbForTest];
+	
+	/*
+	 [Memory]
+	 id = 1, num = 100
+	 [DB]
+	 id = 1, num = 100
+	 */
+	_model.num = @100;
+	[_model update];
+	[_model viewDbForTest];
+	
+	/*
+	 [Memory]
+	 id = 1, num = 900
+	 [DB]
+	 id = 1, num = 100
+	 [After load]
+	 id = 1, num = 100
+	 */
+	_model.num = @900;
+	[_model load];
+	XCTAssert([_model.num isEqualToNumber:@100], @"Pass");
 }
 
 - (void)testPerformanceExample {
