@@ -10,8 +10,8 @@
 #define Pocket_SqlManager_h
 
 @interface PocketSqlManager : NSObject
--(instancetype)initWithDbName:(NSString*)fileName;
--(instancetype)initWithDbName:(NSString*)fileName directory:(NSSearchPathDirectory)directory;
++(instancetype)manager;
++(void)initializeWithDbName:(NSString*)fileName;
 
 -(BOOL) deleteDatabase;
 -(BOOL) executeQuery:(NSString*)query;

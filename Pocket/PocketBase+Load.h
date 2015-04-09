@@ -45,20 +45,10 @@
 
 -(void)insection:(NSArray*)resultSet
 {
-	int i = 0;
-	for (NSString* name in [self properties])
+	for(NSDictionary* row in resultSet)
 	{
-		NSString* setterName = [NSString stringWithFormat:@"set%@:", [name capitalizedString]];
-		//NSLog(@"Setter name : %@", setterName);
-		SEL msg = NSSelectorFromString(setterName);
-		if([self respondsToSelector:msg])
-		{
-			id arg = resultSet[i++];
-			NSInvocation* inv = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:msg]];
-			[inv setSelector:msg];
-			[inv setArgument:&arg atIndex:2];
-			[inv invokeWithTarget:self];
-		}
+		for (NSString* name in [[self properties] allKeys])
+			[[self properties][name] insection:self value:row[name]];
 	}
 }
 @end

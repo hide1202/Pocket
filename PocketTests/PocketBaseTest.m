@@ -77,6 +77,8 @@
 	 */
 	_model.id = @1;
 	_model.num = @10;
+	_model.name = @"viewpoint";
+	_model.age = @28;
 	[_model insert];
 	[_model viewDbForTest];
 	
@@ -101,11 +103,8 @@
 	_model.num = @900;
 	[_model load];
 	XCTAssert([_model.num isEqualToNumber:@100], @"Pass");
+	
+	NSArray* result = [TestModel allLoad];
+	NSLog(@"result all load : %@", [result description]);
 }
-
-- (void)testPerformanceExample {
-    [self measureBlock:^{
-    }];
-}
-
 @end

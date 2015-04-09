@@ -12,7 +12,11 @@
 static const NSString* kDbFileNameKey = @"PocketDbFileName";
 static const NSString* kDefaultDbFileName = @"PocketDb.sqlite";
 
+@class PocketSqlManager;
+
 @interface PocketBase : NSObject
++(NSArray*)allLoad;
+
 -(instancetype)init;
 -(instancetype)initWithProperties:(NSArray*)props;
 -(instancetype)initWithProperties:(NSArray*)props primaryKeys:(NSArray*)pKeys;

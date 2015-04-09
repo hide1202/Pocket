@@ -14,6 +14,7 @@
 #import "PocketSqlManager.h"
 
 @interface PocketBase ()
++(void)loadDatabase;
 -(BOOL)createDatabase;
 @end
 
@@ -23,7 +24,6 @@
 	BOOL _isCreate;
 	NSMutableDictionary* _props;
 	NSMutableDictionary* _pKeys;
-	PocketSqlManager* _manager;
 }
 
 -(instancetype)init
@@ -33,13 +33,7 @@
 	{
 		self->_isCreate = NO;
 		self.tableName = NSStringFromClass([self class]);
-		NSString* dbFileName = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey];
-
-		if(!dbFileName)
-			dbFileName = (NSString*)kDefaultDbFileName;
-		
-		NSLog(@"Db file name : %@", dbFileName);
-		_manager = [[PocketSqlManager alloc] initWithDbName:dbFileName];
+		[PocketBase loadDatabase];
 	}
 	return self;
 }
@@ -58,6 +52,40 @@
 	if(self)
 		[self setPrimaryKey:pKeys];
 	return self;
+}
+
++(NSArray*)allLoad
+{
+	NSArray* rSet = [[PocketSqlManager manager] executeQuerySync:[NSString stringWithFormat:@"select * from %@", NSStringFromClass([self class])]];
+	if(!rSet || [rSet count] <= 0L)
+		return nil;
+	
+	NSMutableArray* propsArr = [NSMutableArray new];
+	for (NSString* name in [rSet[0] allKeys])
+		[propsArr addObject:name];
+	
+	NSMutableArray* result = [NSMutableArray new];
+	for (NSDictionary* row in rSet) {
+		id el = [[self alloc] initWithProperties:propsArr];
+		for (NSString* name in [row allKeys])
+			[[el properties][name] insection:el value:row[name]];
+		[result addObject:el];
+	}
+	return result;
+}
+
++(void)loadDatabase
+{
+	if(![PocketSqlManager manager])
+	{
+		NSString* dbFileName = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString*)kDbFileNameKey];
+
+		if(!dbFileName)
+			dbFileName = (NSString*)kDefaultDbFileName;
+
+		NSLog(@"Db file name : %@", dbFileName);
+		[PocketSqlManager initializeWithDbName:dbFileName];
+	}
 }
 
 -(NSDictionary*) primaryKeys
@@ -116,7 +144,7 @@
 	}
 	NSString* query = [NSString stringWithFormat:kInsertQuery, _tableName, [columns substringFromIndex:1], [values substringFromIndex:1]];
 	NSLog(@"Insert query : %@", query);
-	return [_manager executeQuery:query];
+	return [[PocketSqlManager manager] executeQuery:query];
 }
 
 -(BOOL)update
@@ -133,7 +161,7 @@
 	
 	NSString* query = [NSString stringWithFormat:kUpdateQuery, self.tableName, [setClause substringFromIndex:1] , [self where]];
 	NSLog(@"Update query : %@", query);
-	return [_manager executeQuery:query];
+	return [[PocketSqlManager manager] executeQuery:query];
 }
 
 -(BOOL)createDatabase
@@ -145,18 +173,18 @@
 	
 	NSString* query = [NSString stringWithFormat:kCreateQuery, _tableName, [columns substringFromIndex:1]];
 	NSLog(@"Create query : %@", query);
-	_isCreate = [_manager executeQuery:query];
+	_isCreate = [[PocketSqlManager manager] executeQuery:query];
 	return _isCreate;
 }
 
 -(BOOL)deleteDbForTest
 {
-	return [_manager deleteDatabase];
+	return [[PocketSqlManager manager] deleteDatabase];
 }
 
 -(void)viewDbForTest
 {
-	[_manager selectAllForTest:self.tableName];
+	[[PocketSqlManager manager] selectAllForTest:self.tableName];
 }
 
 -(void)loadWithPrimaryKey:(NSDictionary*)pKeys completionHandler:(void(^)(NSError*))handler;
@@ -168,7 +196,7 @@
 	}
 	
 	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self whereWithDict:pKeys]];
-	[_manager executeQueryAsync:query resultHandler:^(NSArray *result) {
+	[[PocketSqlManager manager] executeQueryAsync:query resultHandler:^(NSArray *result) {
 		[self insection:result];
 		handler(nil);
 	}];
@@ -180,6 +208,6 @@
 		[NSException raise:@"PocketBase" format:@"Primary key doesn't be found"];
 	
 	NSString* query = [NSString stringWithFormat:kSFWQuery, [self selectColumns:_props], self.tableName, [self where]];
-	[self insection:[_manager executeQuerySync:query]];
+	[self insection:[[PocketSqlManager manager] executeQuerySync:query]];
 }
 @end

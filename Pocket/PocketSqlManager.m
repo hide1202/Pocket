@@ -20,7 +20,15 @@
 -(BOOL) isSame:(NSString*)str { return [self caseInsensitiveCompare:str] == NSOrderedSame; }
 @end
 
-#pragma mark - PocketBase implementation
+#pragma - PocketSqlManager global variables
+static PocketSqlManager* gManager = nil;
+
+#pragma mark - PocketSqlManager private interface
+@interface PocketSqlManager ()
+-(instancetype)initWithDbName:(NSString*)fileName directory:(NSSearchPathDirectory)directory;
+@end
+
+#pragma mark - PocketSqlManager implementation
 @implementation PocketSqlManager
 {
 @private
@@ -28,6 +36,25 @@
 	NSString* _dbPath;
 	NSString* _fileName;
 	NSSearchPathDirectory _directory;
+}
+
+-(instancetype)init
+{
+	[NSException raise:NSInternalInconsistencyException format:@"PocketSqlManager doesn't be implemented init method!!"];
+	return nil;
+}
+
++(instancetype)manager
+{
+	return gManager;
+}
+
++(void)initializeWithDbName:(NSString*)fileName;
+{
+	static dispatch_once_t token;
+	dispatch_once(&token, ^{
+		gManager = [[PocketSqlManager alloc] initWithDbName:fileName directory:NSCachesDirectory];
+	});
 }
 
 -(instancetype)initWithDbName:(NSString*)fileName
@@ -97,8 +124,10 @@
 	{
 		@try
 		{
-			sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
 			NSMutableArray* result = [NSMutableArray new];
+			NSMutableDictionary* columnNames = [NSMutableDictionary new];
+			
+			sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
 			
 			int count = sqlite3_column_count(stmt);
 			NSMutableArray* types = [NSMutableArray new];
@@ -106,16 +135,21 @@
 				[types addObject:[NSString stringWithUTF8String:sqlite3_column_decltype(stmt, i)]];
 			while(sqlite3_step(stmt) == SQLITE_ROW)
 			{
+				NSMutableDictionary* el = [NSMutableDictionary new];
 				for (int i = 0; i < count; i++)
 				{
+					if([columnNames objectForKey:@(i)] == nil)
+						[columnNames setObject:[NSString stringWithUTF8String:sqlite3_column_name(stmt, i)] forKey:@(i)];
+					
 					NSString* type = [types objectAtIndex:i];
 					if([type isSame:kInteger])
-						[result addObject:[NSNumber numberWithInt:sqlite3_column_int(stmt, i)]];
+						[el setObject:@(sqlite3_column_int(stmt, i)) forKey:[columnNames objectForKey:@(i)]];
 					else if([type isSame:kReal])
-						[result addObject:[NSNumber numberWithDouble:sqlite3_column_double(stmt, i)]];
+						[el setObject:@(sqlite3_column_double(stmt, i)) forKey:[columnNames objectForKey:@(i)]];
 					else if([type isSame:kText])
-						[result addObject:[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, i)]];
+						[el setObject:@((char*)sqlite3_column_text(stmt, i)) forKey:[columnNames objectForKey:@(i)]];
 				}
+				[result addObject:el];
 			}
 			
 			handler(result);
@@ -129,6 +163,9 @@
 	return NO;
 }
 
+/**
+ Return : Array of NSDictionary(column name, value)
+ */
 -(NSArray*) executeQuerySync:(NSString*)query
 {
 	NSLog(@"Sync query : %@", query);
@@ -137,8 +174,10 @@
 	{
 		@try
 		{
-			sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
 			NSMutableArray* result = [NSMutableArray new];
+			NSMutableDictionary* columnNames = [NSMutableDictionary new];
+			
+			sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
 			
 			int count = sqlite3_column_count(stmt);
 			NSMutableArray* types = [NSMutableArray new];
@@ -146,16 +185,21 @@
 				[types addObject:[NSString stringWithUTF8String:sqlite3_column_decltype(stmt, i)]];
 			while(sqlite3_step(stmt) == SQLITE_ROW)
 			{
+				NSMutableDictionary* el = [NSMutableDictionary new];
 				for (int i = 0; i < count; i++)
 				{
+					if([columnNames objectForKey:@(i)] == nil)
+						[columnNames setObject:[NSString stringWithUTF8String:sqlite3_column_name(stmt, i)] forKey:@(i)];
+					
 					NSString* type = [types objectAtIndex:i];
 					if([type isSame:kInteger])
-						[result addObject:[NSNumber numberWithInt:sqlite3_column_int(stmt, i)]];
+						[el setObject:@(sqlite3_column_int(stmt, i)) forKey:[columnNames objectForKey:@(i)]];
 					else if([type isSame:kReal])
-						[result addObject:[NSNumber numberWithDouble:sqlite3_column_double(stmt, i)]];
+						[el setObject:@(sqlite3_column_double(stmt, i)) forKey:[columnNames objectForKey:@(i)]];
 					else if([type isSame:kText])
-						[result addObject:[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, i)]];
+						[el setObject:@((char*)sqlite3_column_text(stmt, i)) forKey:[columnNames objectForKey:@(i)]];
 				}
+				[result addObject:el];
 			}
 			return result;
 		}

@@ -13,7 +13,6 @@
 		9A6FD38D1AC859FE0099F6DB /* PocketBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A6FD38C1AC859FE0099F6DB /* PocketBase.m */; };
 		9AB82B501AC82C2C007DB6B0 /* Pocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 9AB82B4F1AC82C2C007DB6B0 /* Pocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9AB82B561AC82C2C007DB6B0 /* Pocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AB82B4A1AC82C2C007DB6B0 /* Pocket.framework */; };
-		9AB82B5D1AC82C2C007DB6B0 /* PocketTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB82B5C1AC82C2C007DB6B0 /* PocketTests.m */; };
 		9AB82B681AC82CD4007DB6B0 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AB82B671AC82CD4007DB6B0 /* libsqlite3.0.dylib */; };
 		9AB82B6C1AC82D1E007DB6B0 /* PocketSqlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB82B6B1AC82D1E007DB6B0 /* PocketSqlManager.m */; };
 		9AB82B6F1AC835D1007DB6B0 /* PocketSqlManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB82B6E1AC835D1007DB6B0 /* PocketSqlManagerTest.m */; };
@@ -41,7 +40,6 @@
 		9AB82B4F1AC82C2C007DB6B0 /* Pocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pocket.h; sourceTree = "<group>"; };
 		9AB82B551AC82C2C007DB6B0 /* PocketTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PocketTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AB82B5B1AC82C2C007DB6B0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9AB82B5C1AC82C2C007DB6B0 /* PocketTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PocketTests.m; sourceTree = "<group>"; };
 		9AB82B671AC82CD4007DB6B0 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
 		9AB82B6A1AC82D04007DB6B0 /* PocketSqlManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PocketSqlManager.h; sourceTree = "<group>"; };
 		9AB82B6B1AC82D1E007DB6B0 /* PocketSqlManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketSqlManager.m; sourceTree = "<group>"; };
@@ -125,7 +123,6 @@
 			children = (
 				9ADF8F2C1AC8BD0700E88B1A /* Model */,
 				9AB82B6D1AC835C0007DB6B0 /* Base */,
-				9AB82B5C1AC82C2C007DB6B0 /* PocketTests.m */,
 				9AB82B5A1AC82C2C007DB6B0 /* Supporting Files */,
 			);
 			path = PocketTests;
@@ -292,7 +289,6 @@
 			files = (
 				9AB82B6F1AC835D1007DB6B0 /* PocketSqlManagerTest.m in Sources */,
 				9ADF8F2E1AC8BD1A00E88B1A /* PocketBaseTest.m in Sources */,
-				9AB82B5D1AC82C2C007DB6B0 /* PocketTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

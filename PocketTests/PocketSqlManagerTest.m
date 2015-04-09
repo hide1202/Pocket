@@ -20,7 +20,8 @@
 
 - (void)setUp {
     [super setUp];
-	_sqlManager = [[PocketSqlManager alloc] initWithDbName:@"testtable.db"];
+	[PocketSqlManager initializeWithDbName:@"testtable.db"];
+	_sqlManager = [PocketSqlManager manager];
 	[_sqlManager executeQuery:@"create table test(num integer)"];
 }
 
@@ -34,18 +35,13 @@
 	BOOL result1 = [_sqlManager executeQuery:@"insert into test(num) values(1)"];
 	
 	[_sqlManager executeQueryAsync:@"select * from test" resultHandler:^(NSArray *result) {
-		XCTAssert([[result objectAtIndex:0] isEqual:@1], @"Pass");
+		XCTAssert([[[result objectAtIndex:0] objectForKey:@"num"] isEqual:@1], @"Pass");
 		[expection fulfill];
 	}];
     XCTAssert(result1, @"Pass");
 	
 	[self waitForExpectationsWithTimeout:1 handler:^(NSError *error) {
 	}];
-}
-
-- (void)testPerformanceExample {
-    [self measureBlock:^{
-    }];
 }
 
 @end

@@ -16,7 +16,9 @@
 +(instancetype)propertyWithName:(NSString*)name target:(id)target;
 -(id)invoke:(id)target;
 -(NSString*)type:(id)target;
+-(void)insection:(id)target value:(id)value;
 @property objc_property_t property;
+@property NSString* name;
 @end
 
 @implementation Property
@@ -25,6 +27,7 @@
 	Property* p = [Property new];
 	if(p)
 	{
+		p->_name = name;
 		p.property = class_getProperty([target class], [name UTF8String]);
 		if(!p.property)
 			[NSException raise:@"PocketBaseException" format:@"This class doesn't contain %@ property", name];
@@ -58,6 +61,20 @@
 	[inv getReturnValue:&result];
 	
 	return result;
+}
+
+-(void)insection:(id)target value:(id)value
+{
+	NSString* setterName = [NSString stringWithFormat:@"set%@:", [self->_name capitalizedString]];
+	//NSLog(@"Setter name : %@", setterName);
+	SEL msg = NSSelectorFromString(setterName);
+	if([target respondsToSelector:msg])
+	{
+		NSInvocation* inv = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:msg]];
+		[inv setSelector:msg];
+		[inv setArgument:&value atIndex:2];
+		[inv invokeWithTarget:target];
+	}
 }
 @end
 
